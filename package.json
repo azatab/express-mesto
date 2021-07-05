@@ -4,16 +4,16 @@
   "description": "`/routes` — папка с файлами роутера  \r `/controllers` — папка с файлами контроллеров пользователя и карточки   \r `/models` — папка с файлами описания схем пользователя и карточки",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "npx eslint",
-    "start": "nodemon app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/azatab/express-mesto.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Azat Abrarov",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/azatab/express-mesto/issues"
