@@ -5,13 +5,13 @@ const addCard = (req, res) => {
 
   return Card.create(data)
     .then((card) => res.status(200).send(card))
-    .catch((err) => res.status(400).send(err));
+    .catch((err) => res.status(400).send({ message: 'Переданы некорректные данные' }));
 };
 
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.status(200).send(cards))
-    .catch((err) => res.status(400).send(err));
+    .catch((err) => res.status(500).send({ message: err.message }));
 };
 
 const deleteCard = (req, res) => {
@@ -23,7 +23,7 @@ const deleteCard = (req, res) => {
       }
       return res.status(200).send(card);
     })
-    .catch((err) => res.status(400).send(err));
+    .catch((err) => res.status(500).send({ message: err.message }));
 };
 
 const putLike = (req, res) => {
@@ -33,7 +33,7 @@ const putLike = (req, res) => {
     { new: true },
   )
   .then((card) => res.status(200).send(card))
-  .catch((err) => res.status(400).send(err))
+  .catch((err) => res.status(500).send({ message: err.message }))
 };
 
 const removeLike = (req, res) => {
@@ -43,7 +43,7 @@ const removeLike = (req, res) => {
     { new: true },
   )
   .then((card) => res.status(200).send(card))
-  .catch((err) => res.status(400).send(err))
+  .catch((err) => res.status(500).send({ message: err.message }))
 };
 
 module.exports = { addCard, getCards, deleteCard, putLike, removeLike };

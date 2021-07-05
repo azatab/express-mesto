@@ -4,13 +4,13 @@ const addUser = (req, res) => {
   const data = { ...req.body };
   return User.create(data)
     .then((user) => res.status(200).send(user))
-    .catch((err) => res.status(400).send(err));
+    .catch(() => res.status(400).send({ message: 'Переданы некорректные данные'}));
 };
 
 const getUsers = (req, res) => {
   return User.find({})
     .then((users) => res.status(200).send(users))
-    .catch((err) => res.status(400).send(err));
+    .catch((err) => res.status(500).send({ message: err.message }));
 };
 
 const getUser = (req, res) => {
@@ -18,11 +18,11 @@ const getUser = (req, res) => {
   return User.findOne({ id })
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: 'Нет пользователя с таким id' });
+        return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
       }
       return res.status(200).send(user);
     })
-    .catch((err) => res.status(400).send(err));
+    .catch((err) => res.status(500).send({ message: err.message }));
 };
 
 const updateUserProfile = (req, res) => {
@@ -34,8 +34,13 @@ const updateUserProfile = (req, res) => {
       new: true,
       runValidators: true,
     })
-    .then((user) => res.status(200).send(user))
-    .catch((err) => res.status(400).send(err));
+    .then((user) => {
+      if (user) {
+        res.status(200).send(user)
+      }
+      res.status(404).send({ message: 'Запрашиваемый пользователь не найден' })
+    })
+    .catch(() => res.status(400).send({ message: 'Переданы некорректные данные' }));
 };
 
 module.exports = { addUser, getUsers, getUser, updateUserProfile };
