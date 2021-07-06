@@ -9,7 +9,7 @@
     "ecmaVersion": 12
   },
   "rules": {
-    "no-underscore-dangle": ["error", { "allow": ["_id"] }]
-  },
-  "no-console": "off"
+    "no-underscore-dangle": ["error", { "allow": ["_id"] }],
+    "no-console": "on"
+  }
 }
