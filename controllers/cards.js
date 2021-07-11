@@ -5,7 +5,7 @@ const addCard = (req, res) => {
 
   return Card.create(data)
     .then((card) => res.status(200).send(card))
-    .catch((err) => res.status(400).send({ message: 'Переданы некорректные данные' }));
+    .catch(() => res.status(400).send({ message: 'Переданы некорректные данные' }));
 };
 
 const getCards = (req, res) => {
@@ -26,24 +26,32 @@ const deleteCard = (req, res) => {
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
-const putLike = (req, res) => {
-  return Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $addToSet: { likes: req.user._id } },
-    { new: true },
-  )
-  .then((card) => res.status(200).send(card))
-  .catch((err) => res.status(500).send({ message: err.message }))
-};
+const putLike = (req, res) => Card.findByIdAndUpdate(
+  req.params.cardId,
+  { $addToSet: { likes: req.user._id } },
+  { new: true },
+)
+  .then((card) => {
+    if (!card) {
+      return res.status(404).send({ message: 'Нет пользователя с таким id' });
+    }
+    return res.status(200).send(card);
+  })
+  .catch((err) => res.status(500).send({ message: err.message }));
 
-const removeLike = (req, res) => {
-  return Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $pull: { likes: req.user._id } },
-    { new: true },
-  )
-  .then((card) => res.status(200).send(card))
-  .catch((err) => res.status(500).send({ message: err.message }))
-};
+const removeLike = (req, res) => Card.findByIdAndUpdate(
+  req.params.cardId,
+  { $pull: { likes: req.user._id } },
+  { new: true },
+)
+  .then((card) => {
+    if (!card) {
+      return res.status(404).send({ message: 'Нет пользователя с таким id' });
+    }
+    return res.status(200).send(card);
+  })
+  .catch((err) => res.status(500).send({ message: err.message }));
 
-module.exports = { addCard, getCards, deleteCard, putLike, removeLike };
+module.exports = {
+  addCard, getCards, deleteCard, putLike, removeLike,
+};
