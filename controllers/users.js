@@ -17,8 +17,8 @@ const getUsers = (req, res) => User.find({})
   .catch((err) => res.status(500).send({ message: err.message }));
 
 const getUser = (req, res) => {
-  const { id } = req.params;
-  User.findOne({ id })
+  const { userId } = req.params;
+  User.findOne({ _id: userId })
     .orFail(new Error('NotValidId'))
     .then((user) => {
       res.status(200).send(user);
@@ -27,7 +27,7 @@ const getUser = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Переданы некорректные данные' });
-      } if (err.name === 'NotValidId') {
+      } if (err.message === 'NotValidId') {
         return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
       }
       return res.status(500).send({ message: err.message });
@@ -50,7 +50,7 @@ const updateUserProfile = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Переданы некорректные данные' });
-      } if (err.name === 'NotValidId') {
+      } if (err.message === 'NotValidId') {
         return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
       }
       return res.status(500).send({ message: err.message });

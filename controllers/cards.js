@@ -24,7 +24,7 @@ const deleteCard = (req, res) => {
     .orFail(new Error('NotValidId'))
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.name === 'NotValidId') {
+      if (err.message === 'NotValidId') {
         return res.status(404).send({ message: 'Карточка с указанным _id не найдена' });
       } if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Переданы некорректные данные' });
@@ -44,7 +44,7 @@ const putLike = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Переданы некорректные данные' });
-      } if (err.name === 'NotValidId') {
+      } if (err.message === 'NotValidId') {
         return res.status(404).send({ message: 'Нет пользователя с таким id' });
       }
       return res.status(500).send({ message: err.message });
@@ -62,7 +62,7 @@ const removeLike = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Переданы некорректные данные' });
-      } if (err.name === 'NotValidId') {
+      } if (err.message === 'NotValidId') {
         return res.status(404).send({ message: 'Нет пользователя с таким id' });
       }
       return res.status(500).send({ message: err.message });
