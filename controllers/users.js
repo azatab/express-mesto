@@ -36,7 +36,7 @@ const getUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+        return res.status(400).send({ message: 'Переданы некорректные данные2' });
       } if (err.message === 'NotValidId') {
         return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
       }
@@ -69,7 +69,7 @@ const updateUserProfile = (req, res) => {
 
 const login = (req, res) => {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
+  return User.findByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res.send({ token });
@@ -79,6 +79,19 @@ const login = (req, res) => {
     });
 };
 
+const getCurrentUser = (req, res) => {
+  const id = req.user._id;
+  console.log(req.user);
+
+  User.findById(id)
+    .then((user) => {
+      res.status(200).send(user);
+    })
+    .catch((err) => {
+      res.send(err);
+    });
+};
+
 module.exports = {
-  addUser, getUsers, getUser, updateUserProfile, login,
+  addUser, getUsers, getUser, updateUserProfile, login, getCurrentUser,
 };

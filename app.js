@@ -5,6 +5,9 @@ const helmet = require('helmet');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 
+const { addUser, login } = require('./controllers/users');
+const auth = require('./middlewares/auth');
+
 const { PORT = 3000 } = process.env;
 
 const app = express();
@@ -15,15 +18,18 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useFindAndModify: false,
 });
 app.use(helmet());
-app.use((req, res, next) => {
-  req.user = {
-    _id: '60e3443ec4111347c4ca13d2',
-  };
+// app.use((req, res, next) => {
+//   req.user = {
+//     _id: '60e3443ec4111347c4ca13d2',
+//   };
 
-  next();
-});
+//   next();
+// });
 
 app.use('/', express.json());
+app.post('/signin', login);
+app.post('/signup', addUser);
+app.use(auth);
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
 app.use('*', (req, res) => {
