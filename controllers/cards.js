@@ -18,19 +18,28 @@ const getCards = (req, res) => {
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const id = req.params.cardId;
-  return Card.findByIdAndRemove(id)
-    .orFail(new Error('NotValidId'))
-    .then((card) => res.status(200).send(card))
-    .catch((err) => {
-      if (err.message === 'NotValidId') {
-        return res.status(404).send({ message: 'Карточка с указанным _id не найдена' });
-      } if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+  Card.findById(id)
+    .orFail(new Error('Карточка с таким id не найдена!'))
+    .then((card) => {
+      if (card.owner._id.toString() === req.user._id) {
+        Card.findByIdAndRemove(id)
+          .then((deletedCard) => {
+            res.send(deletedCard);
+          })
+          .catch((err) => {
+            if (err.name === 'Casterror') {
+              res.status(400).send({ message: 'Карточка с таким id  не найдена!!' });
+            }
+          })
+          .catch(next);
+      } else {
+        throw new Error('Недостаточно прав для удаления карточки');
       }
-      return res.status(500).send({ message: err.message });
-    });
+      return res.status(200).send({ message: 'Карточка удалена' });
+    })
+    .catch(next);
 };
 
 const putLike = (req, res) => {
