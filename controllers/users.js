@@ -2,9 +2,13 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-const addUser = (req, res) => {
+const NotFoundError = require('../errors/not-found-err');
+const BadRequestError = require('../errors/bad-req-err');
+const ConflictError = require('../errors/conflict-err');
+const UnautharizedError = require('../errors/unauth-err');
+
+const addUser = (req, res, next) => {
   const data = { ...req.body };
-  console.log(data);
   bcrypt.hash(data.password, 10)
     .then((hash) => User.create({
       email: data.email,
@@ -16,34 +20,37 @@ const addUser = (req, res) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        throw new BadRequestError('Переданы некорректные данные');
+        // res.status(400).send({ message: 'Переданы некорректные данные' });
       }
-      res.status(500).send({ message: err.message });
-    });
+      if (err.name === 'MongoError' && err.code === 11000) {
+        throw new ConflictError(`Пользователь с почтой ${data.email} уже существует!`);
+      }
+    })
+    .catch(next);
 };
 
-const getUsers = (req, res) => User.find({})
+const getUsers = (req, res, next) => User.find({})
   .then((users) => res.status(200).send(users))
-  .catch((err) => res.status(500).send({ message: err.message }));
+  .catch(next);
 
-const getUser = (req, res) => {
+const getUser = (req, res, next) => {
   const { userId } = req.params;
   User.findOne({ _id: userId })
     .orFail(new Error('NotValidId'))
     .then((user) => {
       res.status(200).send(user);
-      console.log(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные2' });
+        throw new BadRequestError(err.message);
       } if (err.message === 'NotValidId') {
-        return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
-      return res.status(500).send({ message: err.message });
-    });
+    })
+    .catch(next);
 };
-const updateUserProfile = (req, res) => {
+const updateUserProfile = (req, res, next) => {
   const data = { ...req.body };
   return User.findByIdAndUpdate(
     req.user._id,
@@ -59,15 +66,15 @@ const updateUserProfile = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+        throw new BadRequestError('Переданы некорректные данные');
       } if (err.message === 'NotValidId') {
-        return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
-      return res.status(500).send({ message: err.message });
-    });
+    })
+    .catch(next);
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findByCredentials(email, password)
     .then((user) => {
@@ -75,11 +82,12 @@ const login = (req, res) => {
       res.send({ token });
     })
     .catch((err) => {
-      res.status(401).send({ message: err.message });
-    });
+      throw new UnautharizedError(err.message);
+    })
+    .catch(next);
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   const id = req.user._id;
   console.log(req.user);
 
@@ -89,7 +97,8 @@ const getCurrentUser = (req, res) => {
     })
     .catch((err) => {
       res.send(err);
-    });
+    })
+    .catch(next);
 };
 
 module.exports = {

@@ -18,13 +18,6 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useFindAndModify: false,
 });
 app.use(helmet());
-// app.use((req, res, next) => {
-//   req.user = {
-//     _id: '60e3443ec4111347c4ca13d2',
-//   };
-
-//   next();
-// });
 
 app.use('/', express.json());
 app.post('/signin', login);
@@ -34,6 +27,17 @@ app.use('/', usersRouter);
 app.use('/', cardsRouter);
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+});
+
+// Обработчик ошибок
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({
+    message: statusCode === 500
+      ? 'На сервере произошла ошибка'
+      : message,
+  });
+  next();
 });
 
 app.listen(PORT, () => {
