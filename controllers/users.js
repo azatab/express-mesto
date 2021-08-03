@@ -26,6 +26,7 @@ const addUser = (req, res, next) => {
       if (err.name === 'MongoError' && err.code === 11000) {
         throw new ConflictError(`Пользователь с почтой ${data.email} уже существует!`);
       }
+      next(err);
     })
     .catch(next);
 };
@@ -47,6 +48,7 @@ const getUser = (req, res, next) => {
       } if (err.message === 'NotValidId') {
         throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
+      next(err);
     })
     .catch(next);
 };
@@ -70,6 +72,7 @@ const updateUserProfile = (req, res, next) => {
       } if (err.message === 'NotValidId') {
         throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
+      next(err);
     })
     .catch(next);
 };

@@ -12,6 +12,7 @@ const addCard = (req, res, next) => {
       if (err.name === 'ValidationError') {
         throw new BadRequestError('Переданы некорректные данные');
       }
+      next(err);
     })
     .catch(next);
 };
@@ -60,6 +61,7 @@ const putLike = (req, res, next) => {
       } if (err.message === 'NotValidId') {
         throw new NotFoundError('Нет карточки с таким id');
       }
+      next(err);
     })
     .catch(next);
 };
@@ -78,6 +80,7 @@ const removeLike = (req, res, next) => {
       } if (err.message === 'NotValidId') {
         throw new NotFoundError('Нет карточки с таким id');
       }
+      next(err);
     })
     .catch(next);
 };
