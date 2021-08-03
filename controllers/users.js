@@ -17,11 +17,12 @@ const addUser = (req, res, next) => {
       about: data.about,
       avatar: data.avatar,
     }))
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(200).send({
+      _id: user._id, email: user.email, name: user.name, about: user.about, avatar: user.avatar,
+    }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new BadRequestError('Переданы некорректные данные');
-        // res.status(400).send({ message: 'Переданы некорректные данные' });
       }
       if (err.name === 'MongoError' && err.code === 11000) {
         throw new ConflictError(`Пользователь с почтой ${data.email} уже существует!`);

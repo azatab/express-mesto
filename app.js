@@ -6,6 +6,8 @@ const { errors, celebrate, Joi } = require('celebrate');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 
+const NotFoundError = require('./errors/not-found-err');
+
 const { addUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 
@@ -26,7 +28,7 @@ app.post(
   celebrate({
     body: Joi.object().keys({
       email: Joi.string().required().email(),
-      password: Joi.string().required().min(8).max(30),
+      password: Joi.string().required().min(8),
     }),
   }),
   login,
@@ -36,10 +38,10 @@ app.post(
   celebrate({
     body: Joi.object().keys({
       email: Joi.string().required().email(),
-      password: Joi.string().required().min(8).max(30),
+      password: Joi.string().required().min(8),
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(30),
-      avatar: Joi.string().min(2).max(30),
+      avatar: Joi.string().pattern(new RegExp(/^((ftp|http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-/])*)?/)),
     }),
   }),
   addUser,
@@ -47,8 +49,8 @@ app.post(
 app.use(auth);
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
-app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+app.use('*', (req, res, next) => {
+  next(new NotFoundError('Запрашиваемый ресурс не найден'));
 });
 
 app.use(errors());
