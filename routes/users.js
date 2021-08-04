@@ -1,10 +1,11 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const urlvalidator = require('../middlewares/url-validation');
+
 const {
   getUsers, getUser, updateUserProfile, getCurrentUser,
 } = require('../controllers/users');
 
-// router.post('/users', addUser);
 router.get('/users', getUsers);
 router.get('/users/me', getCurrentUser);
 router.get(
@@ -30,7 +31,7 @@ router.patch(
   '/users/me/avatar',
   celebrate({
     body: Joi.object().keys({
-      avatar: Joi.string().required().pattern(new RegExp(/^((ftp|http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-/])*)?/)),
+      avatar: Joi.string().required().custom(urlvalidator, 'custom URL validator'),
     }),
   }),
   updateUserProfile,
