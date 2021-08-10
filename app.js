@@ -11,6 +11,7 @@ const NotFoundError = require('./errors/not-found-err');
 const { addUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const urlvalidator = require('./middlewares/url-validation');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 
@@ -25,6 +26,9 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use(helmet());
 
 app.use('/', express.json());
+
+app.use(requestLogger);
+
 app.post(
   '/signin',
   celebrate({
@@ -54,6 +58,8 @@ app.use('/', cardsRouter);
 app.use('*', (req, res, next) => {
   next(new NotFoundError('Запрашиваемый ресурс не найден'));
 });
+
+app.use(errorLogger);
 
 app.use(errors());
 // Обработчик ошибок
